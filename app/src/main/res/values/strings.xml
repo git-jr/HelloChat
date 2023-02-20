@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">HelloChat</string>
+    <string name="error_message">message of error</string>
+</resources>
