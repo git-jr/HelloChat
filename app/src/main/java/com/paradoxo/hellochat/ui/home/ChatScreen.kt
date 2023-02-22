@@ -11,6 +11,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Send
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -22,9 +23,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.toColorInt
+import com.paradoxo.hellochat.R
 import com.paradoxo.hellochat.data.Author
 import com.paradoxo.hellochat.data.messageListSample
 import com.paradoxo.hellochat.ui.components.MessageItemAi
@@ -37,6 +40,7 @@ fun ChatScreen(
     state: ChatScreenUiState,
     modifier: Modifier = Modifier,
     onSendMessage: () -> Unit = {},
+    onShowSelectorFile: () -> Unit = {},
 ) {
     Scaffold { paddingValues ->
         Column(modifier.padding(paddingValues)) {
@@ -64,14 +68,23 @@ fun ChatScreen(
                 }
             }
             Spacer(modifier = Modifier.height(4.dp))
-            EntryTextBar(state) { onSendMessage() }
+            EntryTextBar(
+                state,
+                onShowSelectorFile = onShowSelectorFile,
+                onClickSendMessage = onSendMessage
+            )
         }
     }
 }
 
+
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
-private fun EntryTextBar(state: ChatScreenUiState, onClickSendMessage: () -> Unit = {}) {
+private fun EntryTextBar(
+    state: ChatScreenUiState,
+    onShowSelectorFile: () -> Unit = {},
+    onClickSendMessage: () -> Unit = {}
+) {
     Row(
         modifier = Modifier
             .height(56.dp)
@@ -97,6 +110,17 @@ private fun EntryTextBar(state: ChatScreenUiState, onClickSendMessage: () -> Uni
             )
 
         )
+
+        IconButton(onClick = onShowSelectorFile) {
+            Icon(
+                painterResource(id = R.drawable.ic_action_files),
+                "file",
+                tint = Color("#FF567AF4".toColorInt()),
+                modifier = Modifier
+                    .weight(1f)
+            )
+        }
+
         IconButton(onClick = onClickSendMessage) {
             Icon(
                 Icons.Filled.Send,
@@ -106,7 +130,6 @@ private fun EntryTextBar(state: ChatScreenUiState, onClickSendMessage: () -> Uni
                     .weight(1f)
             )
         }
-
     }
 }
 
