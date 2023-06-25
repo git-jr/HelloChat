@@ -25,7 +25,10 @@ import androidx.core.graphics.toColorInt
 import com.paradoxo.hellochat.R
 
 @Composable
-fun BottomSheetFiles(showAnotherSheet: () -> Unit = {}) {
+fun BottomSheetFiles(
+    showAnotherSheet: () -> Unit = {},
+    onSelectImage: () -> Unit = {},
+) {
     Column(
         Modifier
             .fillMaxWidth()
@@ -33,6 +36,7 @@ fun BottomSheetFiles(showAnotherSheet: () -> Unit = {}) {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
+        Spacer(modifier = Modifier.height(16.dp))
         Text(text = "File type", textAlign = TextAlign.Center)
         Spacer(modifier = Modifier.height(16.dp))
         Row(
@@ -40,7 +44,7 @@ fun BottomSheetFiles(showAnotherSheet: () -> Unit = {}) {
             horizontalArrangement = Arrangement.SpaceEvenly,
         ) {
             IconButton(
-                onClick = showAnotherSheet,
+                onClick = onSelectImage,
                 Modifier.background(
                     color = Color(android.graphics.Color.MAGENTA),
                     shape = CircleShape
@@ -79,10 +83,12 @@ fun BottomSheetFiles(showAnotherSheet: () -> Unit = {}) {
                 )
             }
         }
+
+        Spacer(modifier = Modifier.height(16.dp))
     }
 }
 
-@Preview()
+@Preview(showBackground = true)
 @Composable
 fun BottomSheetFilesPreview() {
     BottomSheetFiles(showAnotherSheet = { })

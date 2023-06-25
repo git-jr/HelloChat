@@ -1,18 +1,21 @@
 package com.paradoxo.hellochat
 
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.Modifier
+import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
@@ -22,13 +25,23 @@ import com.google.accompanist.navigation.material.ExperimentalMaterialNavigation
 import com.google.accompanist.navigation.material.ModalBottomSheetLayout
 import com.google.accompanist.navigation.material.bottomSheet
 import com.google.accompanist.navigation.material.rememberBottomSheetNavigator
+import com.google.mlkit.vision.common.InputImage
+import com.google.mlkit.vision.label.ImageLabeling
+import com.google.mlkit.vision.label.defaults.ImageLabelerOptions
+import com.paradoxo.hellochat.data.Author
+import com.paradoxo.hellochat.data.Message
+import com.paradoxo.hellochat.data.messageListSample
+import com.paradoxo.hellochat.extension.showToast
 import com.paradoxo.hellochat.ui.components.BottomSheetFiles
+import com.paradoxo.hellochat.ui.components.MessageItemAi
 import com.paradoxo.hellochat.ui.home.ChatScreen
 import com.paradoxo.hellochat.ui.home.ChatScreenUiState
 import com.paradoxo.hellochat.ui.home.ChatViewModel
 import com.paradoxo.hellochat.ui.navigation.HelloChatRoute
 import com.paradoxo.hellochat.ui.theme.HelloChatTheme
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import java.io.IOException
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -48,12 +61,54 @@ fun HelloChatApp() {
     val bottomSheetNavigator = rememberBottomSheetNavigator()
     val navController = rememberNavController(bottomSheetNavigator)
 
+    val context = LocalContext.current
+
+    val viewModel = viewModel<ChatViewModel>()
+    val state by viewModel.uiState.collectAsState()
+
+    val scope = rememberCoroutineScope()
+
+    val pickImageLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickVisualMedia(),
+        onResult = {
+
+            scope.launch {
+                viewModel.indentificationImage(it)
+            }
+
+            it?.let { uri ->
+                Log.i("uri", uri.toString())
+
+                navController.navigateUp()
+
+                val image: InputImage
+                try {
+                    image = InputImage.fromFilePath(context, uri)
+                    classifyImage(image) { labels ->
+
+                        if (labels.isNotEmpty()) {
+                            val message = Message(
+                                content = labels.toString(), autor = Author.AI
+                            )
+                            scope.launch {
+                                delay(1000)
+                                viewModel.addResponse(message)
+                            }
+                        }
+
+                    }
+                } catch (e: IOException) {
+                    e.printStackTrace()
+                }
+            }
+        }
+    )
+
     ModalBottomSheetLayout(bottomSheetNavigator) {
         NavHost(navController, HelloChatRoute.HOME) {
+
             composable(HelloChatRoute.HOME) {
 
-                val viewModel = viewModel<ChatViewModel>()
-                val state by viewModel.uiState.collectAsState()
 
                 HomeScreen(
                     state = state,
@@ -68,15 +123,43 @@ fun HelloChatApp() {
                     }
                 )
             }
+
             bottomSheet(HelloChatRoute.BOTTOMSHEETFILE) {
                 BottomSheetFiles(
                     showAnotherSheet = {
                         navController.navigate(HelloChatRoute.BOTTOMSHEETFILE)
+                    },
+                    onSelectImage = {
+                        pickImageLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
                     }
                 )
             }
         }
     }
+}
+
+
+fun classifyImage(image: InputImage, onResult: (List<String>) -> Unit) {
+
+    val listlabels = mutableListOf<String>()
+
+    val labeler = ImageLabeling.getClient(ImageLabelerOptions.DEFAULT_OPTIONS)
+    labeler.process(image)
+        .addOnSuccessListener { labels ->
+            for (label in labels) {
+                val text = label.text
+                val confidence = label.confidence
+                val index = label.index
+                Log.i("label", "$text $confidence $index")
+
+                listlabels.add(text)
+            }
+            onResult(listlabels)
+        }
+        .addOnFailureListener { e ->
+            Log.i("label", e.toString())
+        }
+
 }
 
 @Composable
