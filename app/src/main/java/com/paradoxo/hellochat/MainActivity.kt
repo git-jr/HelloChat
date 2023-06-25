@@ -12,10 +12,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
@@ -30,10 +27,7 @@ import com.google.mlkit.vision.label.ImageLabeling
 import com.google.mlkit.vision.label.defaults.ImageLabelerOptions
 import com.paradoxo.hellochat.data.Author
 import com.paradoxo.hellochat.data.Message
-import com.paradoxo.hellochat.data.messageListSample
-import com.paradoxo.hellochat.extension.showToast
 import com.paradoxo.hellochat.ui.components.BottomSheetFiles
-import com.paradoxo.hellochat.ui.components.MessageItemAi
 import com.paradoxo.hellochat.ui.home.ChatScreen
 import com.paradoxo.hellochat.ui.home.ChatScreenUiState
 import com.paradoxo.hellochat.ui.home.ChatViewModel
@@ -88,7 +82,7 @@ fun HelloChatApp() {
 
                         if (labels.isNotEmpty()) {
                             val message = Message(
-                                content = labels.toString(), autor = Author.AI
+                                content = labels.toString(), autor = Author.AI, visualContent = "teste"
                             )
                             scope.launch {
                                 delay(1000)

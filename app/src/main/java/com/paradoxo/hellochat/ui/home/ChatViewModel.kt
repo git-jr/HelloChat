@@ -2,13 +2,16 @@ package com.paradoxo.hellochat.ui.home
 
 import android.net.Uri
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.paradoxo.hellochat.data.Author
 import com.paradoxo.hellochat.data.Message
 import com.paradoxo.hellochat.data.messageListSample
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 
 class ChatViewModel : ViewModel() {
     private val _uiState = MutableStateFlow(ChatScreenUiState())
@@ -40,12 +43,27 @@ class ChatViewModel : ViewModel() {
     }
 
     private fun searchResponse(messageValue: String) {
+        viewModelScope.launch {
+            delay(1000)
+            with(_uiState) {
+                val message = Message(
+                    content = "Feature avaliable soon, for now, try to send an image!",
+                    autor = Author.AI
+                )
+                val messages = value.messages.toMutableList()
+                messages.removeAt(messages.size - 1)
+                messages.add(message)
+                value = value.copy(
+                    messages = messages
+                )
+            }
+        }
     }
 
     private fun updateUi() {
         with(_uiState) {
             val userMessage = Message(
-                content = value.messageValue, autor = Author.USER
+                content = value.messageValue, autor = Author.USER,
             )
 
             value = value.copy(
@@ -79,9 +97,10 @@ class ChatViewModel : ViewModel() {
     }
 
     fun indentificationImage(uri: Uri?) {
-        // adicionar mensagem de "enviado" e depois carregamento
         val userMessage = Message(
-            content = "Imagem $uri", autor = Author.USER
+            content = "Image $uri",
+            autor = Author.USER,
+            visualContent = uri.toString()
         )
 
         val loadMessage = Message(autor = Author.LOAD)

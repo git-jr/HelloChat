@@ -1,4 +1,3 @@
-
 package com.paradoxo.hellochat.ui.components
 
 import androidx.compose.animation.core.Animatable
@@ -7,6 +6,7 @@ import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -23,32 +23,64 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.toColorInt
+import coil.compose.AsyncImage
+import com.paradoxo.hellochat.data.Author
+import com.paradoxo.hellochat.data.Message
 import kotlinx.coroutines.delay
 
 @Composable
-fun MessageItemUser(value: String) {
+fun MessageItemUser(value: Message) {
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 8.dp),
+            .padding(vertical = if (value.visualContent != null) 0.dp else 8.dp),
         horizontalAlignment = Alignment.End
     ) {
-        Row {
-            Spacer(Modifier.size(50.dp))
-            Text(
-                value,
+
+        if (value.visualContent != null) {
+            Column(
                 Modifier
+                    .size(200.dp)
                     .background(
                         color = Color("#FF567AF4".toColorInt()),
                         shape = RoundedCornerShape(25.dp, 25.dp, 0.dp, 25.dp)
-                    )
-                    .padding(16.dp),
-                color = Color.White,
-            )
+                    ),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                AsyncImage(
+                    model = value.visualContent,
+                    contentDescription = null,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .size(200.dp)
+                        .padding(8.dp)
+                        .clip(RoundedCornerShape(25.dp, 25.dp, 0.dp, 25.dp)),
+
+                )
+            }
+        } else {
+            Row {
+                Spacer(Modifier.size(50.dp))
+                Text(
+                    value.content,
+                    Modifier
+                        .background(
+                            color = Color("#FF567AF4".toColorInt()),
+                            shape = RoundedCornerShape(25.dp, 25.dp, 0.dp, 25.dp)
+                        )
+                        .padding(16.dp),
+                    color = Color.White,
+                )
+            }
         }
     }
 }
@@ -130,4 +162,17 @@ fun MessageItemLoad() {
             )
         }
     }
+}
+
+
+@Preview
+@Composable
+fun MessageItemUserPreview() {
+    MessageItemUser(
+        Message(
+            content = "Olá, tudo bem?",
+            autor = Author.USER,
+            visualContent = null
+        )
+    )
 }
