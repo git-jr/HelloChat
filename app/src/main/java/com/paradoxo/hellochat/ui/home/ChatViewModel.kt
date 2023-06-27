@@ -81,11 +81,11 @@ class ChatViewModel : ViewModel() {
     fun updateshowError() {
         _uiState.value = _uiState.value.copy(
             showError = false,
-            error = ""
+            error = "Don't was possible to classify the image"
         )
     }
 
-    fun addResponse(message: Message) {
+    private fun addResponse(message: Message) {
         with(_uiState) {
             val messages = value.messages.toMutableList()
             messages.removeAt(messages.size - 1)
@@ -113,5 +113,18 @@ class ChatViewModel : ViewModel() {
                 )
             )
         )
+    }
+
+    fun addAiMessage(value: MutableList<String>) {
+        val message = Message(
+            content = value.toString(),
+            autor = Author.AI,
+            visualContent = ""
+        )
+
+        viewModelScope.launch {
+            delay(1000)
+            addResponse(message)
+        }
     }
 }
