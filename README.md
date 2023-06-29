@@ -12,10 +12,16 @@ Para saber mais sobre o ML Kit, consulte a [documentação oficial do ML Kit](ht
 
 
 ## 🚧 Como o aplicativo funciona
-
+### Reconhecimento de imagens
 Por agora, o HelloChat permite que os usuários enviem imagens para um bate-papo. O aplicativo, em seguida, usa o ML Kit para identificar objetos na imagem, e exibe os resultados no bate-papo. Veja o GIF abaixo para ver o aplicativo em ação:
 
 https://github.com/git-jr/HelloChat/assets/35709152/bf9928b8-7d12-4629-b42e-d2ca1fb86416
+
+### Auto identificação de idioma
+Usando as libs de identificação de idioma e tradução, o app responde sempre com base no idioma da ultima entrada do usuário, o app não tem mauitas respostas ainda, mas para testar enviei uma imagem, depois envie uma mensagem em diferentes idioma e veja você mesmo resultado.
+
+https://github.com/git-jr/HelloChat/assets/35709152/f77ad19d-e0b9-43e3-8ac9-7089cc4ac5a2
+
 
 
 
@@ -27,7 +33,7 @@ https://github.com/git-jr/HelloChat/assets/35709152/bf9928b8-7d12-4629-b42e-d2ca
 ‎ㅤ
 ## 📱 Instalação e Uso
 
-Para começar a usar o HelloChat, baixe o [arquivo mais recente instável](apk_mais_recente) e execute-o em um dispositivo Android, ou faça um clone do repositório e compile o projeto usando o Android Studio.
+Para começar a usar o HelloChat, baixe o [arquivo mais recente instável][apk_mais_recente] e execute-o em um dispositivo Android, ou faça um clone do repositório e compile o projeto usando o Android Studio.
 
 🔒 O HelloChat faz uso do [Storage Acess Framework (SAF)](https://developer.android.com/guide/topics/providers/document-provider) uma maneira segura de lidar com os arquivos do Android, ele só tem acesso ao arquivos que você seleciona explicitamente.
 
@@ -49,4 +55,4 @@ Se você é iniciante no mundo da IA com Android, vale a pena conferir a [docume
 😁 Qualquer dúvida ou sugestão, sinta-se à vontade para abrir uma issue ou enviar um pull request. Obrigado por visitar este repositório!
 
 
-[apk_mais_recente]: (https://github.com/git-jr/HelloChat/releases/tag/untagged-b4ede75d06d72d89db48)
+[apk_mais_recente]: https://github.com/git-jr/HelloChat/releases
