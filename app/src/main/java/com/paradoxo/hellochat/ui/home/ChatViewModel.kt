@@ -3,9 +3,11 @@ package com.paradoxo.hellochat.ui.home
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.mlkit.nl.translate.TranslateLanguage
 import com.paradoxo.hellochat.data.Author
 import com.paradoxo.hellochat.data.Message
 import com.paradoxo.hellochat.data.messageListSample
+import com.paradoxo.hellochat.mlkit.TextTranslate
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -13,7 +15,9 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-class ChatViewModel : ViewModel() {
+class ChatViewModel(
+    private val textTranslate: TextTranslate = TextTranslate()
+) : ViewModel() {
     private val _uiState = MutableStateFlow(ChatScreenUiState())
     val uiState: StateFlow<ChatScreenUiState>
         get() = _uiState.asStateFlow()
@@ -33,7 +37,6 @@ class ChatViewModel : ViewModel() {
         )
     }
 
-
     fun sendMessage() {
         with(_uiState) {
             val messageValue = value.messageValue
@@ -43,20 +46,59 @@ class ChatViewModel : ViewModel() {
     }
 
     private fun searchResponse(messageValue: String) {
+
+        val responseMessage = Message(
+            content = "Feature avaliable soon, for now, try to send an image!",
+            autor = Author.AI
+        )
+
         viewModelScope.launch {
-            delay(1000)
-            with(_uiState) {
-                val message = Message(
-                    content = "Feature avaliable soon, for now, try to send an image!",
-                    autor = Author.AI
-                )
-                val messages = value.messages.toMutableList()
+            textTranslate.indentifyLanguage(
+                messageValue,
+                onSuccessful = { userLanguage ->
+                    val languageLastAiMessage =
+                        _uiState.value.languageLastAiMessage ?: TranslateLanguage.ENGLISH
+                    if (userLanguage != languageLastAiMessage) {
+                        val contenLastAiMessage =
+                            _uiState.value.messages.last { it.autor == Author.AI }.content
+
+                        textTranslate.translateText(
+                            text = contenLastAiMessage,
+                            targetLanguage = userLanguage,
+                            sourceLanguage = languageLastAiMessage,
+                            onSuccessful = { translatedText ->
+                                val translateMessage = Message(
+                                    content = translatedText,
+                                    autor = Author.AI
+                                )
+                                addResponse(translateMessage)
+                            },
+                            onFailiure = {
+                                addNewMessageAndRemoveLoad(responseMessage)
+                            }
+                        )
+                    } else {
+                        addNewMessageAndRemoveLoad(responseMessage)
+                    }
+
+                },
+                onFailiure = {
+                    addNewMessageAndRemoveLoad(responseMessage)
+                }
+            )
+        }
+    }
+
+    private fun addNewMessageAndRemoveLoad(responseMessage: Message) {
+        with(_uiState) {
+            val messages = value.messages.toMutableList()
+            if (messages[messages.size - 1].autor == Author.LOAD) {
                 messages.removeAt(messages.size - 1)
-                messages.add(message)
-                value = value.copy(
-                    messages = messages
-                )
             }
+            messages.add(responseMessage)
+            value = value.copy(
+                messages = messages
+            )
         }
     }
 
@@ -78,7 +120,7 @@ class ChatViewModel : ViewModel() {
         }
     }
 
-    fun updateshowError() {
+    fun updateShowError() {
         _uiState.value = _uiState.value.copy(
             showError = false,
             error = "Don't was possible to classify the image"
@@ -92,6 +134,17 @@ class ChatViewModel : ViewModel() {
             messages.add(message)
             value = value.copy(
                 messages = messages
+            )
+        }
+
+        if (message.autor == Author.AI) {
+            textTranslate.indentifyLanguage(
+                message.content,
+                onSuccessful = { languageLastAiMessage ->
+                    _uiState.value = _uiState.value.copy(
+                        languageLastAiMessage = languageLastAiMessage
+                    )
+                }
             )
         }
     }
@@ -116,15 +169,30 @@ class ChatViewModel : ViewModel() {
     }
 
     fun addAiMessage(value: MutableList<String>) {
-        val message = Message(
-            content = value.toString(),
-            autor = Author.AI,
-            visualContent = ""
-        )
 
-        viewModelScope.launch {
-            delay(1000)
-            addResponse(message)
+        val text = value.toString()
+
+        _uiState.value.languageLastAiMessage?.let { languageLastAiMessage ->
+            textTranslate.translateText(
+                text = text,
+                targetLanguage = languageLastAiMessage,
+                sourceLanguage = TranslateLanguage.ENGLISH,
+                onSuccessful = { translatedText ->
+                    val translateMessage = Message(
+                        content = translatedText,
+                        autor = Author.AI
+                    )
+                    addResponse(translateMessage)
+                },
+                onFailiure = {
+                    addResponse(Message(autor = Author.AI))
+                }
+            )
+        } ?: run {
+            viewModelScope.launch {
+                delay(1000)
+                addResponse(Message(content = text, autor = Author.AI))
+            }
         }
     }
 }

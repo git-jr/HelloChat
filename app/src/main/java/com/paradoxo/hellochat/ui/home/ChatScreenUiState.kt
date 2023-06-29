@@ -7,5 +7,6 @@ data class ChatScreenUiState(
     val messageValue: String = "",
     val onMessageValueChange: (String) -> Unit = {},
     val showError: Boolean = false,
-    val error: String = ""
+    val error: String = "",
+    val languageLastAiMessage: String? = null,
 )

@@ -12,16 +12,17 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.core.graphics.toColorInt
 import com.paradoxo.hellochat.R
 
 @Composable
@@ -37,7 +38,12 @@ fun BottomSheetFiles(
         verticalArrangement = Arrangement.Center
     ) {
         Spacer(modifier = Modifier.height(16.dp))
-        Text(text = "File type", textAlign = TextAlign.Center)
+        Text(
+            text = "File type",
+            textAlign = TextAlign.Center,
+            color = colorResource(id = R.color.dark_blue),
+            style = MaterialTheme.typography.titleMedium
+        )
         Spacer(modifier = Modifier.height(16.dp))
         Row(
             Modifier.fillMaxWidth(),
@@ -46,7 +52,7 @@ fun BottomSheetFiles(
             IconButton(
                 onClick = onSelectImage,
                 Modifier.background(
-                    color = Color(android.graphics.Color.MAGENTA),
+                    color = colorResource(id = R.color.medium_blue),
                     shape = CircleShape
                 )
             ) {
@@ -55,36 +61,42 @@ fun BottomSheetFiles(
                     null,
                     modifier = Modifier
                         .weight(1f),
-                    tint = androidx.compose.ui.graphics.Color.White
+                    tint = Color.White,
                 )
             }
             IconButton(
                 onClick = showAnotherSheet,
-                Modifier.background(color = Color("#7600bc".toColorInt()), shape = CircleShape)
+                Modifier.background(
+                    color = colorResource(id = R.color.medium_blue),
+                    shape = CircleShape
+                )
             ) {
                 Icon(
                     painterResource(id = R.drawable.ic_action_document),
                     null,
                     modifier = Modifier
                         .weight(1f),
-                    tint = androidx.compose.ui.graphics.Color.White
+                    tint = Color.White,
                 )
             }
             IconButton(
                 onClick = showAnotherSheet,
-                Modifier.background(color = Color("#ee6002".toColorInt()), shape = CircleShape)
+                Modifier.background(
+                    color = colorResource(id = R.color.medium_blue),
+                    shape = CircleShape
+                )
             ) {
                 Icon(
                     painterResource(id = R.drawable.ic_action_audio),
                     null,
                     modifier = Modifier
                         .weight(1f),
-                    tint = androidx.compose.ui.graphics.Color.White,
+                    tint = Color.White,
                 )
             }
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(32.dp))
     }
 }
 

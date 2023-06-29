@@ -58,11 +58,11 @@ fun HelloChatApp() {
     val pickImageLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia(),
         onResult = {
-            scope.launch {
-                chatViewModel.indentificationImage(it)
-            }
 
             it?.let { uri ->
+                scope.launch {
+                    chatViewModel.indentificationImage(it)
+                }
                 navController.navigateUp()
                 try {
                     imageLabeling.classifyImage(
@@ -71,12 +71,12 @@ fun HelloChatApp() {
                             chatViewModel.addAiMessage(labels)
                         },
                         onFailiure = {
-                            chatViewModel.updateshowError()
+                            chatViewModel.updateShowError()
                         }
                     )
 
                 } catch (e: IOException) {
-                    chatViewModel.updateshowError()
+                    chatViewModel.updateShowError()
                     e.printStackTrace()
                 }
             }
